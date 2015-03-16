@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: pyGSM
+Version: 0.1
+Summary: Python interface to GSM modems
+Home-page: http://github.com/adammck/pygsm
+Author: RapidSMS development community
+Author-email: rapidsms@googlegroups.com
+License: BSD
+Description: UNKNOWN
+Platform: UNKNOWN

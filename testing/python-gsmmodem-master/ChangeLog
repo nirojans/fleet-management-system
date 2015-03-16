@@ -1,0 +1,56 @@
+* Thu Jul 18 2013 Francois Aucamp <francois.aucamp@gmail.com> - 0.9
+- Added UDH support for SMS PDUs
+- Stored messages APIs made public
+- USSD support improved on different modem types
+- Vastly improved unit test coverage
+- Lots of bugfixes and stability improvements
+
+* Tue May 21 2013 Francois Aucamp <francois.aucamp@gmail.com> - 0.8
+- Support added for ZTE modems
+- Improved support for Huawei modems
+- Outgoing call status can now be tracked via polling (for unknown modems)
+- SMSC property added
+- Fixes for SMS sending and receiving on different modems
+- Added callback mechanism for outoging call status updates
+
+* Fri Apr 19 2013 Francois Aucamp <francois.aucamp@gmail.com> - 0.7
+- Support added for tracking SMS status reports
+- PIN unlock support
+- SMS API cleaned up
+- Bugfixes
+
+* Tue Apr 03 2013 Francois Aucamp <francois.aucamp@gmail.com> - 0.6
+- Added support for PDU mode SMS
+- Default SMS read/write mode is now PDU mode
+- Added identify-modem.py script to assist with debugging different modem types
+- Lots of bugfixes
+- Lots of tests added
+
+* Wed Mar 06 2013 Francois Aucamp <francois.aucamp@gmail.com> - 0.5
+- Many bugfixes and improvements, especially to USSD handling
+- Improved exceptions to allow more Pythonic error handling
+- Tests added for SMS API
+- Unit tests speeded up
+
+* Tue Mar 05 2013 Francois Aucamp <francois.aucamp@gmail.com> - 0.4
+- Support added for making voice calls
+- Library and utilities now supported under Python 2.6
+- Support added for Wavecom modems
+- Tests expanded
+
+* Tue Feb 26 2013 Francois Aucamp <francois.aucamp@gmail.com> - 0.3
+- USSD functionality added
+- GsmModem class now exposed in main gsmmodem package
+- GsmModem test cases added for USSD functionality
+- Some fixes to GSMTerm tests
+
+* Mon Feb 18 2013 Francois Aucamp <francois.aucamp@gmail.com> - 0.2
+- Renamed "gsmterm" module to "gsmtermlib" to avoid conflict between startup
+script and module
+
+* Wed Feb 13 2013 Francois Aucamp <francois.aucamp@gmail.com> - 0.1
+- Initial 0.1 release to github
+- GsmModem class functionality more-or-less where I need it: handles incoming
+SMS messages and phone calls, can send SMS messages
+- GSMTerm essentially finished
+- SendSMS user script needs some polish

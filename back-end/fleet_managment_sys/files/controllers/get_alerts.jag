@@ -1,0 +1,52 @@
+<%
+    var dataStore = require('../include/commons.jag').dataStore;
+	var verb = request.getMethod();
+    var resourceName = request.getParameter('name');
+    var webService = request.getParameter('service');
+
+    var log = new Log();
+
+    if(webService) {
+            response.contentType = 'application/json';
+            response.characterEncoding = 'UTF-8';
+            response.content = { resource : get(resourceName) };
+    }
+
+    function get(name){
+        if(name == 'within'){
+            try{
+                var res = dataStore.get("geo/alerts/within/");
+            }
+            catch(e){
+                log.info(e.message);
+                return false;
+            }
+            var allFences = [];
+            for each (var resource in res.getChildren()) {
+                var fence = {};
+                try{
+                    fence['geoJson'] = JSON.parse(dataStore.get(resource).content.replace(/'/g, '"'));
+                    fence['queryName'] = dataStore.get(resource).getProperty('queryName');
+                    fence['areaName'] = dataStore.get(resource).getProperty('areaName');
+                    fence['createdTime'] = dataStore.get(resource).createdTime.toString();
+                    allFences.push(fence);
+                }
+                catch(e){
+                    log.info("Error: "+e+'\n');
+                }
+            }
+            return allFences;
+        } else if(name == 'speed'){
+            var resource = dataStore.get(name+'.json');
+            log.info("DEBUG:***** name = "+name);
+            log.info("DEBUG:***** resource.content = "+resource.content);
+            return JSON.parse(resource.content);
+        } else if(name == 'proximity'){
+                    var resource = dataStore.get("/geo/alerts/proximity/proximity.json");
+                    return {proximityDistance: resource.getProperty("proximityDistance"), proximityTime: resource.getProperty("proximityTime")};
+
+
+        }
+    }
+
+%>

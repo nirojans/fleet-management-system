@@ -1,0 +1,22 @@
+<%
+var log = new Log();
+//var parseData = request.getParameter('parseData'); // TODO: if app/json use request.getContent()
+//var all = request.getAllParameters();
+//log.info(all);
+//print(all);
+//var carbon = require('carbon');
+//user = carbon.server.tenantUser("lklsk@lklk.lk");
+//realmService = carbon.server.osgiService('org.wso2.carbon.user.core.service.RealmService');
+//realm = realmService.getTenantUserRealm();
+//print(realm);
+
+var dataStore = require('../include/commons.jag').dataStore;
+var res = dataStore.get("geo/alerts/proximity/");
+print(res);
+
+for each (var resource in res.getChildren()) {
+
+                log.info(resource);
+                }
+
+%>

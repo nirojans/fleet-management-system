@@ -1,0 +1,19 @@
+<executionPlan name="geo_speed_alert" statistics="enable" trace="enable" xmlns="http://wso2.org/carbon/eventprocessor">
+  <description>When an object reatch to a pre-defined aleart speed, CEP change the state of that event to ALEARTED and overwrite the information.</description>
+  <siddhiConfiguration>
+    <property name="siddhi.persistence.snapshot.time.interval.minutes">0</property>
+    <property name="siddhi.enable.distributed.processing">false</property>
+  </siddhiConfiguration>
+  <importedStreams>
+    <stream as="dataIn" name="standardSpatialEvents" version="1.0.0"/>
+  </importedStreams>
+  <queryExpressions><![CDATA[from dataIn[speed >= $speedAlertValue]#transform.geo:subscribeExecutionPlan()
+select id , latitude, longitude,timeStamp, speed, heading ,eventId , "ALERTED" as state, "This vehicle is going over speed!!" as information
+insert into dataOut;
+from dataIn[speed < $speedAlertValue]
+select id , latitude, longitude,timeStamp, speed, heading ,eventId , "NORMAL" as state, "Normal driving pattern" as information
+insert into dataOut;]]></queryExpressions>
+  <exportedStreams>
+    <stream name="processedSpatialEvents" valueOf="dataOut" version="1.0.0"/>
+  </exportedStreams>
+</executionPlan>

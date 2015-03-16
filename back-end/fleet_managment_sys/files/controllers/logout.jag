@@ -1,0 +1,6 @@
+<%
+    session.put("error", "You have logout successfully!");
+    session.put("user", null);
+    response.sendRedirect("/geo_dashboard/new/");
+%>
+

@@ -1,0 +1,12 @@
+<%
+    var log = new Log();
+    var path = "../conf/database.conf";//Configuration file path
+    var file = new File(path);
+    file.open("r");
+    var raw = "";
+    raw = file.readAll();
+    log.info(raw);
+    var configuration = parse(raw);
+    log.info(configuration);
+    file.close();
+%>

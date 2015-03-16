@@ -1,0 +1,105 @@
+<%
+    /* Includes */
+    var escapeXml = require('../include/commons.jag').escapeXml;
+    var cepInfo = require('../include/commons.jag').cepInfo;
+    var storeAlerts = require('../include/store_alerts.jag').store; // TODO: change to js
+    var ws = require('ws');
+
+    var log = new Log();
+
+	var verb = request.getMethod();
+    var executionPlan = request.getParameter('executionPlan');
+    var queryName = request.getParameter('queryName');
+    var customName = request.getParameter('customName');
+    var cepAction = request.getParameter('cepAction'); // i.e 'deploy' new executionPlan , 'edit' executionPlan and etc..
+
+    var parseData = request.getParameter('parseData'); // TODO: if app/json use request.getContent()
+    var parseDataJson = JSON.parse(parseData);
+
+    //log.info(request.getAllParameters("UTF-8")); // To check what parameters we get from the front-end
+    if(verb == "POST") {
+        var path = "../conf/alerts/geo_"+executionPlan+"_alert.xml";
+        var file = new File(path);
+        file.open("r");
+        var template = "";
+        template = file.readAll();
+        file.close(); // TODO: use try catch finally  put close inside finally
+
+        for(var parseKey in parseDataJson) {
+                parseValue = parseDataJson[parseKey];
+                var find = "\\$"+parseKey;
+                var re = new RegExp(find, 'g');
+                template = template.replace(re,parseValue); // TODO: instead of updating a same template use tempory variable with proper name for clearity
+        }
+
+        var updatedTemplate = template;
+
+        log.info(updatedTemplate);
+        var escapedTemplate = escapeXml(updatedTemplate);
+
+
+        optionalArgs = {"queryName": queryName,"customName": customName,"executionPlan": executionPlan};
+        // TODO: Inefficient if and else if blocks change it by using general keyword to resourceContents
+        if(executionPlan == 'within'){
+            var resourceContents = parseDataJson.geoFenceGeoJSON;
+        }
+        else if(executionPlan == 'speed'){
+            var resourceContents = parseDataJson.speedAlertValue;
+        } else if(executionPlan == 'proximity'){
+            var resourceContents = parseDataJson
+        }
+        storeAlerts(parseKey,resourceContents,executionPlan,optionalArgs);
+
+        var cep = cepInfo();
+
+        // Init ws request
+        // TODO: use cep stub
+        var version = new ws.WSRequest();
+        var options = new Array();
+        options.useSOAP = 1.2;
+        options.useWSA = 1.0;
+        var payload;
+
+        if(cepAction == "edit"){
+            options.action = "urn:editActiveExecutionPlanConfiguration"; // TODO: replace {edit}ActiveExecutionPlanConfiguration with cepAction ????
+            payload =     '<adm:editActiveExecutionPlanConfiguration xmlns:adm="http://admin.processor.event.carbon.wso2.org">'
+                              +      '<adm:configuration>'
+                              +     escapedTemplate
+                              +     '</adm:configuration>'
+                              +     '<adm:name>geo_'+executionPlan+'_alert</adm:name>'
+                              +  '</adm:editActiveExecutionPlanConfiguration>';
+        }
+        else if(cepAction == "deploy"){
+            options.action = "urn:deployExecutionPlanConfigurationFromConfigXml";
+            payload =     '<adm:deployExecutionPlanConfigurationFromConfigXml xmlns:adm="http://admin.processor.event.carbon.wso2.org">'
+                              +      '<adm:executionPlanConfigurationXml>'
+                              +     escapedTemplate
+                              +     '</adm:executionPlanConfigurationXml>'
+                              +  '</adm:deployExecutionPlanConfigurationFromConfigXml>';
+        }
+        else if(cepAction == "undeploy"){
+
+
+
+        }
+
+        var result;
+        //log.info(("DEBUG: payload "+payload);
+        //log.info("DEBUG: cepAction = "+cepAction+" options = "+options);
+
+        var responseJson = { "status" :"" , "message" : ""};
+        try {
+            version.open(options, "https://"+cep.server+":"+cep.port+"/services/EventProcessorAdminService.EventProcessorAdminServiceHttpsSoap12Endpoint/", false, cep.username, cep.password);
+            version.send(payload);
+            result = version.responseE4X;
+            responseJson.status = "success";
+            responseJson.message = "Query deployed successfully";
+        } catch (e) {
+            responseJson.status = "failed";
+            responseJson.message = "Error occurred while deploying the execution plan";
+            log.error(e.toString());
+        }
+        print(responseJson);
+    }
+
+%>

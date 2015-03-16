@@ -1,0 +1,25 @@
+<executionPlan name="geo_proximity_alert" statistics="enable"
+  trace="enable" xmlns="http://wso2.org/carbon/eventprocessor">
+  <description/>
+  <siddhiConfiguration>
+    <property name="siddhi.persistence.snapshot.time.interval.minutes">0</property>
+    <property name="siddhi.enable.distributed.processing">false</property>
+  </siddhiConfiguration>
+  <importedStreams>
+    <stream as="dataIn" name="standardSpatialEvents" version="1.0.0"/>
+  </importedStreams>
+  <queryExpressions><![CDATA[from dataIn#transform.geo:subscribeExecutionPlan()
+select id, latitude, longitude, timeStamp, speed, heading, eventId,geo:geoProximity($proximityDistance,latitude,longitude,id,timeStamp,$proximityTime) as proximity
+insert into innerStream;
+
+from innerStream[proximity == "false"]
+select id , latitude, longitude,timeStamp, speed, heading ,eventId , "NORMAL" as state, "" as information
+insert into dataOut;
+
+from innerStream[proximity != "false"]
+select id , latitude, longitude,timeStamp, speed, heading ,eventId , "WARNING" as state, proximity as information
+insert into dataOut;]]></queryExpressions>
+  <exportedStreams>
+    <stream name="processedSpatialEvents" valueOf="dataOut" version="1.0.0"/>
+  </exportedStreams>
+</executionPlan>

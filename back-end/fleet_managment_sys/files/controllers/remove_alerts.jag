@@ -1,0 +1,54 @@
+<%
+    /* Includes */
+    var cepInfo = require('../include/commons.jag').cepInfo;
+    var removeAlert = require('../include/store_alerts.jag').remove;
+    var ws = require('ws');
+
+    var log = new Log();
+
+	var verb = request.getMethod();
+    var executionPlanName = request.getParameter('executionPlanName');
+    var queryName = request.getParameter('queryName');
+    var cepAction = request.getParameter('cepAction'); // i.e 'deploy' new executionPlan , 'edit' executionPlan and etc..
+
+    if(verb == "POST") {
+        removeAlert(queryName);
+
+        var cep = cepInfo();
+
+        // Init ws request
+        var version = new ws.WSRequest();
+        var options = new Array();
+        options.useSOAP = 1.2;
+        options.useWSA = 1.0;
+        var payload;
+
+        if(cepAction == "undeploy"){
+            options.action = "urn:undeployActiveExecutionPlanConfiguration";
+            payload = '<adm:undeployActiveExecutionPlanConfiguration xmlns:adm="http://admin.processor.event.carbon.wso2.org">'
+                      +      '<adm:name>'
+                      +     executionPlanName
+                      +     '</adm:name>'
+                      +  '</adm:undeployActiveExecutionPlanConfiguration>';
+        }
+
+        var result;
+        log.info("DEBUG: payload "+payload);
+        log.info("DEBUG: cepAction = "+cepAction+" options = "+options);
+
+        var responseJson = { "status" :"" , "message" : ""};
+        try {
+            version.open(options, "https://"+cep.server+":"+cep.port+"/services/EventProcessorAdminService.EventProcessorAdminServiceHttpsSoap12Endpoint/", false, cep.username, cep.password);
+            version.send(payload);
+            result = version.responseE4X;
+            responseJson.status = "success";
+            responseJson.message = "Fence removed successfully";
+        } catch (e) {
+            responseJson.status = "failed";
+            responseJson.message = "Error occurred while removing the execution plan";
+            log.error(e.toString());
+        }
+        print(responseJson);
+    }
+
+%>

@@ -1,0 +1,27 @@
+<%
+var db = require("../include/database.jag");
+
+var log = new Log();
+log.info("Required the module");
+var configuration = db.configuration;
+var db = new Database("jdbc:mysql://"+configuration.server+":3306/"+configuration.db_name, configuration.username, configuration.password);
+var objectId = request.getParameter("objectId");
+
+
+var getHistory = 'SELECT * FROM alerts_history WHERE id = "'+objectId+'" ORDER BY timeStamp DESC LIMIT 50';
+
+try{
+    var history = db.query(getHistory);
+    log.info(history);
+    response.contentType = "application/json";
+    response.characterEncoding = "UTF-8";
+    response.content = history;
+}
+catch(e){
+    print(e.toString());
+}
+finally{
+    db.close();
+}
+
+%>

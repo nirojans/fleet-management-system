@@ -1,0 +1,4 @@
+#RewriteEngine On
+#Pipeline any wdirectory which you need to excluede from matching regex
+#RewriteCond $1 !^(index\.php|assets|robots.txt)
+#RewriteRule ^(.*)$ /index.php/$1 [L]

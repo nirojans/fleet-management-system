@@ -1,0 +1,31 @@
+<%
+var escapeXml = function (s) {
+    XML_CHAR_MAP = {
+        '<': '&lt;',
+        '>': '&gt;',
+        '&': '&amp;',
+        '"': '&quot;',
+        "'": '&apos;'
+    };
+    return s.replace(/[<>&"']/g, function (ch) {
+        return XML_CHAR_MAP[ch];
+    });
+};
+
+var cepInfo = function () {
+    var log = new Log();
+    var path = "../conf/cep_info.conf"; // TODO change ext to .json require will auto parse json file
+    var file = new File(path);
+    file.open("r");
+    var raw = "";
+    raw = file.readAll();
+    log.info(raw);
+    var configuration = parse(raw);
+    log.info(configuration);
+    file.close();
+    return configuration;
+};
+
+// TODO: move to new datastore api
+var dataStore = new MetadataStore("admin", "admin");
+%>

@@ -1,0 +1,77 @@
+<%
+/*
+* Get all available tile servers from RDB via HTTP GET, Insert new tile servers information via HTTP POST request
+*/
+
+// TODO: change to include call
+var db = require("../include/database.jag");
+var log = new Log();
+log.info("Required the module");
+var configuration = db.configuration;
+var db = new Database("jdbc:mysql://"+configuration.server+":3306/"+configuration.db_name, configuration.username, configuration.password);
+//logToFile("WMS-Request received");
+if(request.getMethod() == "GET"){
+    var serverId = request.getParameter("serverId");
+    if(serverId == "all"){
+        var getAllWmsEndPoints = "select * from webMapService";
+            try{
+                var allWmsEndPoints = db.query(getAllWmsEndPoints);
+                log.info(allWmsEndPoints);
+                response.contentType = "application/json";
+                response.characterEncoding = "UTF-8";
+                response.content = allWmsEndPoints;
+            }
+            catch(e){
+                print(e.toString());
+            }
+            finally{
+                db.close();
+            }
+    }
+    else{
+    // TODO: get specific server details
+    }
+}
+else if(request.getMethod() == "POST"){
+    var serviceName = request.getParameter("serviceName");
+    var layers = request.getParameter("layers");
+    var wmsVersion = parseInt(request.getParameter("wmsVersion"));
+    var serviceEndPoint = request.getParameter("serviceEndPoint");
+    var outputFormat = request.getParameter("outputFormat");
+    var insertWmsEndPoint  ="INSERT INTO webMapService (serviceUrl, name, layers, version, format) VALUES('"+ serviceEndPoint +"', '"+ serviceName +"', '"+ layers +"', '"+ wmsVersion +"', '"+ outputFormat +"' );";
+    try{
+        db.query(insertWmsEndPoint);
+        print(serviceName + 'added successfully!');
+    }
+    catch(e){
+        print(e.toString());
+    }
+    finally{
+        db.close();
+    }
+
+
+}
+
+
+function logToFile(message){
+    var currentdate = new Date();
+    var datetime = "[Info]: " + currentdate.getDate() + "/"
+                    + (currentdate.getMonth()+1)  + "/"
+                    + currentdate.getFullYear() + " @ "
+                    + currentdate.getHours() + ":"
+                    + currentdate.getMinutes() + ":"
+                    + currentdate.getSeconds()+"\t";
+
+    message = datetime + message + "\n";
+    //print(message);
+    var path = "../log/server.log";
+    var file = new File(path);
+    file.open("a+");
+
+    message = file.write(message);
+    file.close();
+
+}
+
+%>
